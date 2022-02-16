@@ -1,0 +1,15 @@
+[tool.poetry]
+name = "discord_neos_server_status_bot"
+version = "0.1.0"
+description = ""
+authors = ["Nils Rother <NilsRother123@gmail.com>"]
+
+[tool.poetry.dependencies]
+python = "^3.10"
+"discord.py" = "^1.7.3"
+
+[tool.poetry.dev-dependencies]
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
