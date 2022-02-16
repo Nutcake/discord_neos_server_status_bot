@@ -1,16 +1,33 @@
-import discord
 import configparser
+import logging
 
-config = configparser.ConfigParser()
-config.read("config.ini")
-
-apikey = config["Discord"]["apikey"]
-
-client = discord.Client()
+from neos_player_count_client import NeosPlayerCountClient
 
 
-@client.event
-async def on_ready():
-    print(f"{client.user} has connected to Discord!")
+def main():
+    logging.getLogger().setLevel(logging.INFO)
+    logging.info("Parsing config-file...")
+    config = configparser.ConfigParser()
+    config.read("config.ini")
 
-client.run(apikey)
+    token = config.get(section="Discord", option="token")
+    if token is None:
+        logging.critical("You need to provide a valid Bot-Token via the 'token' parameter in the [Discord] section of "
+                         "the config.ini file.")
+        return
+
+    host = config.get(section="General", option="listener_host", fallback="localhost")
+    port = config.getint(section="General", option="listener_port", fallback=22122)
+
+    bot = NeosPlayerCountClient(host=host, port=port)
+
+    @bot.event
+    async def on_ready():
+        await bot.create_listener_socket()
+        logging.info("Bot connected")
+
+    bot.run(token)
+
+
+if __name__ == '__main__':
+    main()
