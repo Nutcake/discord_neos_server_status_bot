@@ -5,7 +5,7 @@ description = ""
 authors = ["Nutcake"]
 
 [tool.poetry.dependencies]
-python = "^3.10"
+python = ">=3.9"
 "discord.py" = "^1.7.3"
 discord = "^1.7.3"
 
