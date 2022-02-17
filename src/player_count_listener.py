@@ -18,5 +18,6 @@ class PlayerCountListener:
             lambda: PlayerCountProtocol(bot, self._loop),
             family=socket.AF_INET,
             port=self._port,
+            host=self._host,
             start_serving=True
         )

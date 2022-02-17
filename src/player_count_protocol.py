@@ -10,6 +10,7 @@ class PlayerCountProtocol(Protocol):
         super().__init__()
         self._client = client
         self._loop = loop
+        self._last_count = 0
 
     def eof_received(self):
         pass
@@ -27,7 +28,12 @@ class PlayerCountProtocol(Protocol):
             logging.warning(f"Received datagram appears to contain an invalid playercount '{count}', ignoring...")
             return
 
+        if count == self._last_count:
+            logging.info("Count unchanged, skipping...")
+            return
+
         logging.info(f"Got playercount {count}, updating presence...")
+        self._last_count = count
         self._loop.create_task(self._client.change_presence(
             activity=discord.Activity(
                 name=f"with {count} Users",

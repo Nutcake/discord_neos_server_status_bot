@@ -16,8 +16,8 @@ def main():
                          "the config.ini file.")
         return
 
-    host = config.get(section="General", option="listener_host", fallback="localhost")
-    port = config.getint(section="General", option="listener_port", fallback=22122)
+    host = config.get(section="General", option="host", fallback=None)
+    port = config.getint(section="General", option="port", fallback=22122)
 
     bot = NeosPlayerCountClient(host=host, port=port)
 
