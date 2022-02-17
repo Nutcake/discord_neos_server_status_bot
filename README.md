@@ -17,8 +17,9 @@ Discord bots needs a valid bot-token, see https://discord.com/developers to crea
 Set the `token`-field in the config.ini file to contain your token and change the default host and port if needed.
 
 # Running
-Start the bot with the following command:
+Start the bot using poetry:
+
 `poetry run python src/main.py`
 
 # Usage
-With the bot running you can send UDP packets containing positive integers to the specified host:port combination to update the displayed playercount.
+With the bot running you can send a HTTP-POST request containing a positive integer to the specified host:port combination to update the displayed playercount.
