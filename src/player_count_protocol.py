@@ -48,9 +48,16 @@ class PlayerCountProtocol(Protocol):
 
         logging.info(f"Got playercount {count}, updating presence...")
         self._last_count = count
+        if count == 0:
+            msg = "with nobody"
+        elif count == 1:
+            msg = "with 1 user"
+        else:
+            msg = f"with {count} users"
+
         self._loop.create_task(self._client.change_presence(
             activity=discord.Activity(
-                name=f"with {count} Users",
+                name=msg,
                 type=discord.ActivityType.playing
             )))
 
