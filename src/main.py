@@ -7,7 +7,7 @@ from neos_player_count_client import NeosPlayerCountClient
 
 
 def main():
-    logging.getLogger().setLevel(logging.INFO)
+    logging.getLogger().setLevel(logging.WARNING)
     logging.info("Parsing config-file...")
     config = configparser.ConfigParser()
     config.read("config.ini")
@@ -20,7 +20,7 @@ def main():
 
     host = config.get(section="General", option="host", fallback=None)
     port = config.getint(section="General", option="port", fallback=22122)
-    offset = config.getint(section="General", option="count_offset", fallback=0)
+    offset = config.getint(section="General", option="count_offset", fallback=-1)
 
     bot = NeosPlayerCountClient(host=host, port=port, offset=offset)
 
