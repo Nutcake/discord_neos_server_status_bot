@@ -9,11 +9,12 @@ class PlayerCountProtocol(Protocol):
     response_ok = "200 OK"
     response_br = "400 Bad Request"
 
-    def __init__(self, client: discord.Client, loop: asyncio.AbstractEventLoop):
+    def __init__(self, client: discord.Client, loop: asyncio.AbstractEventLoop, offset: int):
         super().__init__()
         self._client = client
         self._loop = loop
-        self._last_count = 0
+        self._offset = offset
+        self._last_count = None
         self._transport = None
 
     def connection_made(self, transport: transports.BaseTransport) -> None:
@@ -36,6 +37,9 @@ class PlayerCountProtocol(Protocol):
             logging.warning(f"Received datagram appears to contain an invalid playercount '{count}', ignoring...")
             self.respond(self.response_br)
             return
+
+        count += self._offset
+        count = max(count, 0)
 
         if count == self._last_count:
             logging.info("Count unchanged, skipping...")

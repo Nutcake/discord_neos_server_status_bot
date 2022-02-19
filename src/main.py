@@ -20,8 +20,9 @@ def main():
 
     host = config.get(section="General", option="host", fallback=None)
     port = config.getint(section="General", option="port", fallback=22122)
+    offset = config.getint(section="General", option="count_offset", fallback=0)
 
-    bot = NeosPlayerCountClient(host=host, port=port)
+    bot = NeosPlayerCountClient(host=host, port=port, offset=offset)
 
     @bot.event
     async def on_ready():
