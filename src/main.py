@@ -8,7 +8,7 @@ from config import Config
 
 
 def main():
-    logging.getLogger().setLevel(logging.WARNING)
+    logging.getLogger().setLevel(logging.INFO)
     logging.info("Parsing config-file...")
 
     config = Config()
