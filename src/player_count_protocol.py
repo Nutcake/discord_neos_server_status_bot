@@ -14,8 +14,8 @@ class PlayerCountProtocol(Protocol):
         self._client = client
         self._loop = loop
         self._offset = offset
-        self._last_count = None
         self._transport = None
+        self._server_counts = dict()
 
     def connection_made(self, transport: transports.BaseTransport) -> None:
         self._transport = transport
@@ -25,12 +25,17 @@ class PlayerCountProtocol(Protocol):
 
     def data_received(self, data):
         message = data.decode().rsplit("\n")[-1]
+
+        tokens = message.split(",")
+
         try:
-            count = int(message)
+            count = int(tokens[0])
         except ValueError:
             logging.warning(f"Cannot parse received message\n'{message}'\nas an integer, ignoring...")
             self.respond(self.response_br)
             return
+
+        serv_id = tokens[1] if len(tokens) == 2 else "default"
 
         # sanity check:
         if count < 0:
@@ -41,19 +46,22 @@ class PlayerCountProtocol(Protocol):
         count += self._offset
         count = max(count, 0)
 
-        if count == self._last_count:
+        if serv_id in self._server_counts.keys() and count == self._server_counts[serv_id]:
             logging.info("Count unchanged, skipping...")
             self.respond(self.response_ok)
             return
 
         logging.info(f"Got playercount {count}, updating presence...")
-        self._last_count = count
-        if count == 0:
+        self._server_counts[serv_id] = count
+
+        fullcount = sum([v for k, v in self._server_counts.items()])
+
+        if fullcount == 0:
             msg = "with nobody"
-        elif count == 1:
+        elif fullcount == 1:
             msg = "with 1 user"
         else:
-            msg = f"with {count} users"
+            msg = f"with {fullcount} users"
 
         self._loop.create_task(self._client.change_presence(
             activity=discord.Activity(
