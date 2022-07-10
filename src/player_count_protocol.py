@@ -54,14 +54,7 @@ class PlayerCountProtocol(Protocol):
         logging.info(f"Got playercount {count}, updating presence...")
         self._server_counts[serv_id] = count
 
-        fullcount = sum([v for k, v in self._server_counts.items()])
-
-        if fullcount == 0:
-            msg = "with nobody"
-        elif fullcount == 1:
-            msg = "with 1 user"
-        else:
-            msg = f"with {fullcount} users"
+        msg = ", ".join([f"{entry_id}: {entry_count}" for entry_id, entry_count in self._server_counts.items()])
 
         self._loop.create_task(self._client.change_presence(
             activity=discord.Activity(
