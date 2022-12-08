@@ -15,7 +15,7 @@ class PlayerCountProtocol(Protocol):
         self._loop = loop
         self._offset = offset
         self._transport = None
-        self._server_counts = dict()
+        self._server_info = dict()
         self._timeout_tasks = dict()
         self._timeout_sec = timeout_sec
 
@@ -28,7 +28,9 @@ class PlayerCountProtocol(Protocol):
     async def timeout_server(self, serv_id):
         await asyncio.sleep(self._timeout_sec)
         logging.info(f"Server {serv_id} timed out, resetting to 0...")
-        self._server_counts[serv_id] = 0
+        self._server_info[serv_id][0] = 0
+        if len(self._server_info[serv_id]) == 2:
+            self._server_info[serv_id][1] = False
         msg = self.generate_count_message()
         await self._client.change_presence(
             activity=discord.Activity(
@@ -36,21 +38,25 @@ class PlayerCountProtocol(Protocol):
                 type=discord.ActivityType.playing))
 
     def generate_count_message(self):
-        return ", ".join([f"{entry_id}: {entry_count}" for entry_id, entry_count in self._server_counts.items()])
+        return ", ".join([f"{entry_id}: {entry_count[0]} " + (("G" if entry_count[1] else "R")
+                          if len(entry_count) == 2 else '')
+                          for entry_id, entry_count in self._server_info.items()])
 
     def data_received(self, data):
         message = data.decode().rsplit("\n")[-1]
-
         tokens = message.split(",")
+        serv_info = [0]
 
         try:
             count = int(tokens[0])
-        except ValueError:
-            logging.warning(f"Cannot parse received message\n'{message}'\nas an integer, ignoring...")
+            serv_id = tokens[1]
+            if len(tokens) == 3:
+                consent = bool(int(tokens[2]))
+                serv_info.append(consent)
+        except (ValueError, IndexError):
+            logging.warning(f"Failed to parse a parameter in received message\n'{message}'\n, ignoring...")
             self.respond(self.response_br)
             return
-
-        serv_id = tokens[1] if len(tokens) == 2 else "default"
 
         # sanity check:
         if count < 0:
@@ -60,14 +66,15 @@ class PlayerCountProtocol(Protocol):
 
         count += self._offset
         count = max(count, 0)
+        serv_info[0] = count
 
-        if serv_id in self._server_counts.keys() and count == self._server_counts[serv_id]:
-            logging.info("Count unchanged, skipping...")
+        if serv_id in self._server_info.keys() and serv_info == self._server_info[serv_id]:
+            logging.info("Server info unchanged, skipping...")
             self.respond(self.response_ok)
             return
 
-        logging.info(f"Got playercount {count}, updating presence...")
-        self._server_counts[serv_id] = count
+        logging.info(f"Got new server info {serv_info}, updating presence...")
+        self._server_info[serv_id] = serv_info
 
         msg = self.generate_count_message()
 
