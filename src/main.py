@@ -19,12 +19,12 @@ async def main():
     @bot.command()
     async def week(ctx):
         today = datetime.datetime.now().isocalendar()
-        week_txt = config.week_a if today.week % 2 == 1 else config.week_b
-        if today.weekday < 5:
+        week_txt = config.week_a if today[1] % 2 == 1 else config.week_b
+        if today[2] < 5:
             await ctx.send(f"The coming weekend is **{week_txt}**!")
         else:
             await ctx.send(
-                f"The current weekend is **{week_txt}**! Next weekend will be {config.week_a if today.week % 2 == 0 else config.week_b}")
+                f"The current weekend is **{week_txt}**! Next weekend will be {config.week_a if today[1] % 2 == 0 else config.week_b}")
 
     @bot.event
     async def on_ready():
