@@ -38,9 +38,7 @@ class PlayerCountProtocol(Protocol):
                 type=discord.ActivityType.playing))
 
     def generate_count_message(self):
-        return ", ".join([f"{entry_id}: {entry_count[0]} " + (("G" if entry_count[1] else "R")
-                          if len(entry_count) == 2 else '')
-                          for entry_id, entry_count in self._server_info.items()])
+        return ", ".join([f"{entry_id}: {entry_count[0]}" for entry_id, entry_count in self._server_info.items()])
 
     def data_received(self, data):
         message = data.decode().rsplit("\n")[-1]

@@ -18,3 +18,5 @@ class Config:
         self.port = config.getint(section="General", option="port", fallback=22122)
         self.offset = config.getint(section="General", option="count_offset", fallback=-1)
         self.timeout = config.getint(section="General", option="server_timeout", fallback=240)
+        self.week_a = config.get(section="General", option="week_a", fallback="Movie Night")
+        self.week_b = config.get(section="General", option="week_b", fallback="Funny Friday")
